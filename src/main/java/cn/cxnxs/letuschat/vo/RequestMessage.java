@@ -1,6 +1,10 @@
 package cn.cxnxs.letuschat.vo;
 
 import com.alibaba.fastjson.JSON;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,6 +15,10 @@ import java.util.List;
  * @author mengjinyuan
  * @date 2020-10-14 23:23
  **/
+@Data
+@ToString
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public class RequestMessage implements Serializable {
 
     /**
@@ -89,75 +97,12 @@ public class RequestMessage implements Serializable {
         this.list = list;
     }
 
-    /**
-     * 聊天消息
-     * 没有设置接收人 toUser ，视为群聊
-     * 设置了接收人 toUser，视为私聊
-     */
+
     public static String jsonStr(Integer type, Integer fromUser, Integer toUser, String msg, int onlineCount) {
         return JSON.toJSONString(new RequestMessage(type, fromUser, toUser, msg, onlineCount));
     }
 
     public static String jsonStr(Integer type, Integer fromUser, Integer toUser, String msg, int onlineCount, List<String> list) {
         return JSON.toJSONString(new RequestMessage(type, fromUser, toUser, msg, onlineCount, list));
-    }
-
-    public Integer getType() {
-        return type;
-    }
-
-    public RequestMessage setType(Integer type) {
-        this.type = type;
-        return this;
-    }
-
-    public Integer getFromUser() {
-        return fromUser;
-    }
-
-    public RequestMessage setFromUser(Integer fromUser) {
-        this.fromUser = fromUser;
-        return this;
-    }
-
-    public Integer getToUser() {
-        return toUser;
-    }
-
-    public RequestMessage setToUser(Integer toUser) {
-        this.toUser = toUser;
-        return this;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public RequestMessage setMsg(String msg) {
-        this.msg = msg;
-        return this;
-    }
-
-    public int getOnlineCount() {
-        return onlineCount;
-    }
-
-    public RequestMessage setOnlineCount(int onlineCount) {
-        this.onlineCount = onlineCount;
-        return this;
-    }
-
-    public List<String> getList() {
-        return list;
-    }
-
-    public RequestMessage setList(List<String> list) {
-        this.list = list;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
     }
 }
