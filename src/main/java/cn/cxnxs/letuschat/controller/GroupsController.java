@@ -1,9 +1,14 @@
 package cn.cxnxs.letuschat.controller;
 
 
+import cn.cxnxs.letuschat.annotation.ResponseResult;
+import cn.cxnxs.letuschat.entity.Groups;
+import cn.cxnxs.letuschat.service.IGroupsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.stereotype.Controller;
+import java.util.List;
 
 /**
  * <p>
@@ -13,9 +18,17 @@ import org.springframework.stereotype.Controller;
  * @author mengjinyuan
  * @since 2020-10-19
  */
-@Controller
+@RestController
 @RequestMapping("/groups")
 public class GroupsController {
 
+    @Autowired
+    private IGroupsService groupsService;
+
+    @ResponseResult
+    @RequestMapping("/list")
+    public List<Groups> getGroupsListByUserId(Integer userId){
+        return groupsService.getGroupsListByUserId(userId);
+    }
 }
 
