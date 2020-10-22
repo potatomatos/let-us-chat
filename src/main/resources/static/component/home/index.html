@@ -3,7 +3,7 @@
 		<el-container style="height: 100%; border: 1px solid #eee" v-loading.fullscreen.lock="loading">
 			<!--功能菜单栏-->
 			<el-aside style="width:50px;background: #3C3F41">
-				<el-menu default-active="1" class="el-menu-vertical" :collapse="isCollapse" style="background: #3C3F41">
+				<el-menu default-active="2" class="el-menu-vertical" :collapse="isCollapse" style="background: #3C3F41">
 					<el-menu-item index="1" style="padding: 0 !important;text-align: center;font-size: 26px">
 						<i class="fa fa-commenting" aria-hidden="true"></i>
 					</el-menu-item>
@@ -15,8 +15,12 @@
 			<!--通讯录-->
 			<el-aside style="width:auto;height: 100%">
 
-				<el-menu default-active="2-1" class="el-menu-vertical" :collapse="isCollapse" style="height: 100%">
-					<el-submenu index="1">
+				<el-menu default-active="2"
+				         class="el-menu-vertical"
+				         :collapse="isCollapse"
+				         @select="listSelect"
+				         style="height: 100%">
+					<el-submenu index="2">
 						<template slot="title">
 							<i class="el-icon-share"></i>
 							<span slot="title">群组</span>
@@ -25,163 +29,37 @@
 						<el-menu-item index="1-2">群组2</el-menu-item>
 					</el-submenu>
 
-					<el-submenu index="2">
+					<el-submenu index="1">
 						<template slot="title">
 							<i class="el-icon-menu"></i>
 							<span slot="title">好友</span>
 						</template>
-						<el-menu-item index="2-1">好友1</el-menu-item>
-						<el-menu-item index="2-2">好友2</el-menu-item>
+						<el-menu-item :index="index" v-for="(friend,index) in friends">
+							<el-image
+									style="width: 40px; height: 40px"
+									:src="friend.avatar"
+									fit="cover">
+								<div slot="error" class="image-slot">
+									<i class="el-icon-picture-outline"></i>
+								</div>
+							</el-image>
+							<span class="remark-name">
+								{{friend.remarkName}}
+							</span>
+						</el-menu-item>
 					</el-submenu>
 				</el-menu>
 			</el-aside>
-
 			<el-container>
-				<el-header style="text-align: right; font-size: 12px" id="chatBoxHeader">
-				</el-header>
-
-				<el-main>
-					<div class="chat-box" :style="chatBoxHeight" id="chatBox">
-						<div class="left msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">路人甲</span>
-							<span class="content">什么是孟坤聊天气泡框架？</span>
-						</div>
-
-						<div class="right msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">孤帆远影</span>
-							<span class="content">孟坤聊天气泡框架是一个简洁、直观、强悍的聊天界面前端开发框架，它能让html聊天界面的开发更迅速、简单。</span>
-						</div>
-
-						<div class="left msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">路人甲</span>
-							<span class="content">它都兼容哪些浏览器呢？</span>
-						</div>
-
-						<div class="right msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">孤帆远影</span>
-							<span class="content">理论上兼容所有浏览器！</span>
-						</div>
-
-						<div class="left msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">路人甲</span>
-							<span class="content">如何使用它呢？</span>
-						</div>
-
-						<div class="right msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">孤帆远影</span>
-							<span class="content">
-            首先，你需要引入 mkChatbox.css<br><br>
-            &lt;link type=&quot;text/css&quot; href=&quot;css/mkChatbox.css&quot; rel=&quot;stylesheet&quot; /&gt;
-            <br><br>
-            然后，在页面中创建一个容纳聊天对话的容器：<br><br>
-            &lt;div class=&quot;mk-chat-box&quot;&gt;<br>
-            ...<br>
-            &lt;/div&gt;
-            <br><br>
-            算了，我编不下去了，以后再完善这个文档 T_T
-        </span>
-						</div>
-
-						<div class="tips">
-							<span>以下是各种消息示范</span>
-						</div>
-
-						<div class="right msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">图片消息</span>
-							<span class="content"><img
-									src="https://www.baidu.com/img/dong_ca53b94625c757745bcb2c16461eb105.gif"></span>
-						</div>
-
-						<div class="left msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">长消息左</span>
-							<span class="content">这是一条超级长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长的消息示范</span>
-						</div>
-
-						<div class="right msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">长消息右</span>
-							<span class="content">这是一条超级长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长长的消息示范</span>
-						</div>
-
-						<div class="tips">
-							<span class="tips-warning">系统消息：路人甲又被踢出去了……</span>
-						</div>
-
-						<div class="left msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">空消息</span>
-							<span class="content"></span>
-						</div>
-
-						<div class="left msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">空消息2</span>
-							<span class="content">&nbsp;</span>
-						</div>
-
-						<div class="right msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">超链接</span>
-							<span class="content">超链接测试<a href="http://mkblog.cn" target="_blank">http://mkblog.cn</a>超链接测试</span>
-						</div>
-
-						<div class="left msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">全标点测试</span>
-							<span class="content">！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！</span>
-						</div>
-
-						<div class="right msg">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">&nbsp;</span>
-							<span class="content">无昵称测试</span>
-						</div>
-
-						<div :class="message.direction" v-for="message in groupMessages">
-							<img class="head"
-							     src="https://www.baidu.com/aladdin/xiaodu/images/xiaodu-sprite-icon-active.png"/>
-							<span class="name">{{message.name}}</span>
-							<span class="content">{{message.content}}</span>
-						</div>
-
-						<div class="focus"></div>
-					</div>
-
-					<el-row :gutter="20">
-						<el-input
-								type="textarea"
-								:rows="9"
-								id="chatContent"
-								v-model="chatContent"
-								@keyup.enter.native="sendMsg()">
-						</el-input>
-					</el-row>
-					<el-row :gutter="20" type="flex" justify="end">
-						<el-button @click="sendMsg()" class="btn-send">发送</el-button>
-					</el-row>
-				</el-main>
+				<chatbox v-for="(chatboxData,i) in chatboxDatas"
+				         @onSend="sendMsg"
+				         :type="chatboxData.type"
+				         :fromUser="chatboxData.fromUser"
+				         :toUser="chatboxData.toUser"
+				         :toUsername="chatboxData.toUsername"
+				         :chatboxId="chatboxData.id"
+				         :messageList="chatboxData.messageList"
+				></chatbox>
 			</el-container>
 		</el-container>
 	</div>
@@ -192,9 +70,11 @@
 		color: #333;
 		line-height: 60px;
 	}
+
 	.btn-send {
 		margin-top: 16px;
 	}
+
 	.el-menu-vertical:not(.el-menu--collapse) {
 		width: auto;
 		min-height: 600px;

@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery','componentTool','request'], function ($,componentTool,request) {
     return {
         data: function () {
             return {
@@ -7,57 +7,71 @@ define(['jquery'], function ($) {
                 clientHeight: '',
                 chatContent: '',
                 loading: false,
-                message: {
-                    /**
-                     * 消息类型
-                     */
-                    type: 2,
-                    /**
-                     * 发送人
-                     */
-                    fromUser:null,
-                    /**
-                     * 接收人
-                     */
-                    toUser: 1,
-                    /**
-                     * 发送消息
-                     */
-                    msg: null
-                },
+                chatboxDatas:[],
+                toUserId: null,
+                fromUser:null,
                 webSocket: null,
                 friends: [],//好友列表
                 groups: [],//群聊列表
-                privateMessages: [],//私聊消息列表
-                groupMessages: [],//群聊消息列表
+                currentChatBoxId:null
             }
         },
-        mounted: function () {//
+        created:function(){
+            let user = JSON.parse(this.$store.getters.getUserInfo)
+            if (user){
+                this.fromUser=user.id
+            }
+        },
+        mounted: function () {
             // 获取浏览器可视区域高度
             this.clientHeight = document.documentElement.clientHeight;
             $(".chat-box").animate({scrollTop: this.clientHeight}, 500);
+
             this.initWebSocket();
+            this.getFriendList();
         },
-        watch: {
-            // 如果 `clientHeight` 发生改变，这个函数就会运行
-            clientHeight(newHeight, oldHeight) {
-                console.log("new", newHeight, "old", oldHeight);
-                let chatBoxHeaderHeight = document.getElementById("chatBoxHeader").offsetHeight;
-                let chatContentHeight = document.getElementById("chatContent").offsetHeight;
-                this.chatBoxHeight = "overflow: auto;height:" + (this.clientHeight - chatContentHeight - chatBoxHeaderHeight - 100) + "px";
-            }
-        }, methods: {
+        methods: {
             /**
              * 发送消息
              */
-            sendMsg() {
-                console.log("消息", this.chatContent);
-                if (!this.chatContent){
-                    return
-                }
-                this.message.msg = this.chatContent
-                this.webSocket.send(JSON.stringify(this.message))
+            sendMsg(data) {
+                this.webSocket.send(JSON.stringify(data))
                 this.chatContent=null;
+            },
+            getFriendList(){
+                let _this=this;
+                request.get("/friends/list",{userId:this.fromUser},function (res) {
+                    if (res.code===20000){
+                        _this.friends=res.data;
+                    }
+                })
+            },
+            listSelect:function(index,indexPath){
+                console.log("index",index,"indexPath",indexPath)
+                let type=indexPath[0];
+                if (type==='1'){
+                    //好友
+                    let friend=this.friends[index];
+                    let id=indexPath.join("_");
+                    id="chatbox_"+id
+                    this.currentChatBoxId=id;
+                    let chatboxData={}
+                    chatboxData.id=id
+                    chatboxData.type=type
+                    chatboxData.fromUser=this.fromUser
+                    chatboxData.toUser=friend.id
+                    chatboxData.toUsername=friend.remarkName
+                    chatboxData.messageList=[]
+                    chatboxData.active=true
+
+                    this.chatboxDatas.forEach(function (value) {
+                        value.active=false;
+                    })
+                    this.chatboxDatas.push(chatboxData);
+                    console.log(this.chatboxDatas)
+                }else if (type==='2'){
+                    //群
+                }
             },
             /**
              * 初始化websocket
@@ -69,18 +83,17 @@ define(['jquery'], function ($) {
                     })
                     return;
                 }
-                let user = JSON.parse(this.$store.getters.getUserInfo)
                 let token = this.$store.getters.getToken;
-                if (!user||!token){
+                if (!this.fromUser||!token){
                     this.$message({
                         message: '用户未登录',
                         center: true
                     });
                     return;
                 }
-                this.message.fromUser=user.id
+
                 this.loading = true;
-                this.webSocket = new WebSocket((document.location.origin + "/chat/" + user.id + "/" + token).replace("http", "ws"));
+                this.webSocket = new WebSocket((document.location.origin + "/chat/" + this.fromUser + "/" + token).replace("http", "ws"));
                 this.webSocket.onerror = this.onError;  // 通讯异常
                 this.webSocket.onopen = this.onOpen;  // 连接成功
                 this.webSocket.onmessage = this.onMessage;  // 收到消息时回调
@@ -137,7 +150,7 @@ define(['jquery'], function ($) {
              */
             messageDiv(data) {
                 let direction="";
-                if (data.fromUser.id===this.message.fromUser){
+                if (data.fromUser.id===this.fromUser){
                     direction="right msg"
                 }else {
                     direction="left msg"
@@ -147,11 +160,18 @@ define(['jquery'], function ($) {
                     name:data.fromUser.username,
                     content:data.msg,
                     direction:direction,
-                    avatar:data.fromUser.avatar
+                    avatar:data.fromUser.avatar,
+                    type:data.type
                 }
-                this.groupMessages.push(message);
+                this.chatboxDatas.forEach(function (value) {
+                    if (value.id==="chatbox_"+data.type+"_"+data.fromUser.id){
+                        value.messageList.push(message);
+                    }
+                })
+
                 let height=document.getElementById("chatBox").scrollHeight
-                $(".chat-box").animate({scrollTop:height}, 500);
+                let select="chatBox_"+data.type+"_"+this.toUserId;
+                $("#"+select).animate({scrollTop:height}, 500);
             },
             /**
              * 手动关闭连接
@@ -165,6 +185,12 @@ define(['jquery'], function ($) {
                 localStorage.removeItem("userInfo")
                 this.$router.push({path: '/login'});
             },
+        },
+        components:{
+            "chatbox":componentTool.componentOption('chatbox', {}),
+        },
+        watch: {
+
         }
     }
 });
